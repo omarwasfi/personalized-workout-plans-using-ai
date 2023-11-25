@@ -1,0 +1,18 @@
+@using Ai_FitMentor_Shared.Requests
+@using AI.FitMentor.BlazorApp.Services.Interfaces
+@using Ai_FitMentor_Shared
+@inject IAIFitMentorService AiFitMentorService
+@inject INotificationService notificationService
+<div>Results: </div>
+    <div>
+        @Resultsstr
+    </div>
+
+@code {
+
+    [Parameter]
+    public string Resultsstr { get; set; }
+
+
+
+}

@@ -1,0 +1,101 @@
+﻿@page "/"
+@using Ai_FitMentor_Shared.Requests
+@using Ai_FitMentor_Shared
+@using AI.FitMentor.BlazorApp.Services.Interfaces
+@inject IAIFitMentorService AiFitMentorService
+@rendermode InteractiveServer
+
+<PageTitle>Plan your workout</PageTitle>
+
+<Steps SelectedStep="@selectedStep" bind-SelectedStep="@selectedStep" NavigationAllowed="NavigationAllowed">
+    <Items>
+        <Step Name="step1">Your goals</Step>
+        <Step Name="step2">Availability</Step>
+        <Step Name="step3">
+            <Marker>
+                <Icon Name="IconName.Flag" />
+            </Marker>
+            <Caption>
+                Results
+            </Caption>
+        </Step>
+    </Items>
+    <Content>
+        <StepPanel Name="step1">
+            <YourGoalsComponent PersonalGoalsSelectedEventCallback="PersonalGoalsSelected" @rendermode="RenderMode.InteractiveServer"/>
+            </StepPanel>
+        <StepPanel Name="step2">
+            <AvailabilityComponent AvailabilitySelectedEventCallback="AvailabilitySelected"></AvailabilityComponent>
+        </StepPanel>
+        <StepPanel Name="step3">
+                        @if (readyToGetResults && resultsStrDto != null)
+                        {
+                            <div style="white-space: pre-wrap;">
+                                @resultsStrDto.Result
+                            </div>
+                        }
+            
+            @* @if (readyToGetResults) *@
+            @* { *@
+            @*     <Results Resultsstr="@this.results"/> *@
+            @* } *@
+        </StepPanel>
+    </Content>
+</Steps>
+@code{
+    string selectedStep = "step1";
+    
+    private PersonDataModel personDataModel = new PersonDataModel();
+    private ResultStrDto resultsStrDto;
+    private bool readyToGetResults = false;
+    protected override async Task OnInitializedAsync()
+    {
+        selectedStep = "step1";
+        await base.OnInitializedAsync();
+    }
+
+    private bool NavigationAllowed(StepNavigationContext context)
+    {
+        if (context.CurrentStepIndex == 1 && context.NextStepIndex > 1 && personDataModel.WorkoutType == null)
+        {
+            return false;
+        }
+        if (context.CurrentStepIndex == 2 && personDataModel.Plan == null)
+        {
+            return false;
+        }
+
+        return true;
+
+      
+    }
+
+    private async Task PersonalGoalsSelected(PersonalGoalsDto personalGoalsDto)
+    {
+        personDataModel.MyGoals = personalGoalsDto.MyGoals;
+        personDataModel.Muscles = personalGoalsDto.TargetedMuscles;
+        personDataModel.WorkoutType = personalGoalsDto.WorkoutType;
+        personDataModel.Gender = personalGoalsDto.Gender;
+        personDataModel.Weight = personalGoalsDto.Weight;
+        personDataModel.Height = personalGoalsDto.Height;
+
+        selectedStep = "step2";
+        
+
+    }
+    
+    private async Task AvailabilitySelected(AvailabilityDto availabilityDto)
+    {
+        personDataModel.Place = availabilityDto.Place;
+        personDataModel.Plan = availabilityDto.Plan;
+        personDataModel.Equipments = availabilityDto.Equipments;
+        
+        this.StateHasChanged();
+        this.resultsStrDto = await AiFitMentorService.GeneratePlan(personDataModel);
+        
+        readyToGetResults = true;
+        selectedStep = "step3";
+        
+
+    }
+}

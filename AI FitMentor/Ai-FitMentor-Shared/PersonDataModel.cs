@@ -1,8 +1,8 @@
-namespace AI_FitMentor_Lib.DataModels;
+namespace Ai_FitMentor_Shared;
 
 public class PersonDataModel
 {
-    public string Sex { get; set; }
+    public string Gender { get; set; }
     public string Weight { get; set; }
     public string Height { get; set; }
     

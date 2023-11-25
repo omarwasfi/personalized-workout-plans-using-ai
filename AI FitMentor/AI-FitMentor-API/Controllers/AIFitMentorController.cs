@@ -1,4 +1,4 @@
-using AI_FitMentor_Lib.DataModels;
+using Ai_FitMentor_Shared;
 using Microsoft.AspNetCore.Mvc;
 using AI_FitMentor_Lib.DbContext;
 using AI_FitMentor_Lib.Services.Classes;
@@ -21,11 +21,15 @@ public class AIFitMentorController : ControllerBase
 
     [HttpPost]
     [Route("GeneratePlan")]
-    public async Task<ActionResult<string>> GeneratePlan(PersonDataModel person)
+    public async Task<ActionResult<ResultStrDto>> GeneratePlan(PersonDataModel person)
     {
         try
         {
-            return await this._WorkoutPlanner.Generate(person);
+            ResultStrDto resultStrDto = new ResultStrDto()
+            {
+                Result = await this._WorkoutPlanner.Generate(person)
+            };
+            return resultStrDto;
         }
         catch
         {

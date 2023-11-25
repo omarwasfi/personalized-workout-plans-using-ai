@@ -1,0 +1,244 @@
+@using Ai_FitMentor_Shared.Requests
+@using AI.FitMentor.BlazorApp.Services.Interfaces
+@using Ai_FitMentor_Shared
+@using System.Runtime.CompilerServices
+@inject IAIFitMentorService AiFitMentorService
+
+<Container >
+    <Validations Model="AvailabilityDto" @ref="validationsHorizontalFormRef" Mode="ValidationMode.Auto" ValidateOnLoad="false">
+        <Validation>
+            <Field>
+                <FieldLabel >Where will you workout ?</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is9.OnDesktop">
+                    <Select @bind-SelectedValue="@AvailabilityDto.Plan">
+                        @foreach (PlaceDataModel placeDataModel in this.APIPlaces)
+                        {
+                            <SelectItem Value="placeDataModel">@placeDataModel.Name</SelectItem>
+        
+                        }
+                    </Select>
+                                    
+                </FieldBody>
+                <FieldHelp></FieldHelp>
+            </Field>
+        </Validation>
+         <Field>
+                    <FieldLabel ColumnSize="ColumnSize.IsFull">
+                        @if (AvailabilityDto != null && AvailabilityDto.Equipments != null
+                             && AvailabilityDto.Equipments.Any())
+                        {
+                            <div>Available equipments: (@AvailabilityDto.Equipments.Count)
+                                @foreach (EquipmentDataModel equipmentDataModel in AvailabilityDto.Equipments)
+                                {
+                                    @(equipmentDataModel.Name + ", ")
+                                }
+                            </div>
+        
+                        }
+                        else
+                        {
+                            <div>Available equipments: </div>
+             
+                        }
+                    </FieldLabel>
+                    <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is9.OnDesktop">
+                                            
+                        @foreach (EquipmentContainer equipmentContainer in this.equipmentContainers)
+                        {
+                                            
+                                            
+                            @if (equipmentContainer.Selected)
+                            {
+                                <Badge Style="cursor: pointer;" Margin="Margin.Is1"  Color="Color.Primary" @onclick="@(() => MuscleClicked(equipmentContainer))">@equipmentContainer.Equipment.Name</Badge>
+                                            
+                            }
+                            else
+                            {
+                                <Badge Style="cursor: pointer;" Margin="Margin.Is1" Color="Color.Secondary" @onclick="@(() => MuscleClicked(equipmentContainer))">@equipmentContainer.Equipment.Name</Badge>
+                                            
+                            }
+                        }
+                                            
+                    </FieldBody>
+                    <FieldHelp></FieldHelp>
+                </Field>
+        
+        <Validation>
+            <Field>
+                <FieldLabel >Plan</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is9.OnDesktop">
+                    <Select @bind-SelectedValue="@AvailabilityDto.Plan">
+                        @foreach (PlanDataModel planDataModel in this.APIPlans)
+                        {
+                            <SelectItem Value="planDataModel">@planDataModel.Name</SelectItem>
+
+                        }
+                    </Select>
+                            
+                </FieldBody>
+                <FieldHelp>Leave it if you want us to choose the best for you :)</FieldHelp>
+            </Field>
+        </Validation>
+        
+        <Validation>
+            <Field>
+                <FieldLabel >Number of sessions per week</FieldLabel>
+                <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is9.OnDesktop">
+                    <Select @bind-SelectedValue="@AvailabilityDto.Plan.DaysPerWeek" >
+                        <SelectItem Value="1">1</SelectItem>
+                        <SelectItem Value="2">2</SelectItem>
+                        <SelectItem Value="3">3</SelectItem>
+                        <SelectItem Value="4">4</SelectItem>
+                        <SelectItem Value="5">5</SelectItem>
+                        <SelectItem Value="6">6</SelectItem>
+                        <SelectItem Value="7">7</SelectItem>
+                    </Select>
+                                    
+                </FieldBody>
+                <FieldHelp></FieldHelp>
+            </Field>
+        </Validation>
+                        <Validation>
+                            <Field>
+                                <FieldLabel >Session duration in mins</FieldLabel>
+                                <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is9.OnDesktop">
+                                    <Select @bind-SelectedValue="@AvailabilityDto.Plan.MinsPerSession">
+                                        <SelectItem Value="@("30 mins")">25-35 mins</SelectItem>
+                                        <SelectItem Value="@("45 mins")">45 mins</SelectItem>
+                                        <SelectItem Value="@("55 mins")">55 mins</SelectItem>
+                                        <SelectItem Value="@("60 mins")">60 Mins</SelectItem>
+                                        <SelectItem Value="@("more than 60 mins")">More than 1 hour</SelectItem>
+                                    </Select>
+                                            
+                                </FieldBody>
+                                <FieldHelp></FieldHelp>
+                            </Field>
+                        </Validation>
+       
+    
+        <Blazorise.ValidationSummary @ref="@ValidationSummary" />
+    
+        <Field JustifyContent="JustifyContent.End" TextAlignment="TextAlignment.End">
+            <FieldBody ColumnSize="ColumnSize.Is9.Is3.WithOffset">
+                <Button Color="Color.Primary" Loading="submitButtonLoading" Clicked="SubmitHorizontalForm"> Next</Button>
+    
+            </FieldBody>
+        </Field>
+                    
+    </Validations>
+
+
+
+</Container>
+
+
+@code {
+    
+    [Parameter]
+    public EventCallback<AvailabilityDto> AvailabilitySelectedEventCallback { get; set; }
+
+    private AvailabilityDto AvailabilityDto { get; set; } = new AvailabilityDto(){Equipments = new List<EquipmentDataModel>(),Plan = new PlanDataModel(){} , Place = new PlaceDataModel()};
+    private bool submitButtonLoading { get; set; }    
+    
+    Validations validationsHorizontalFormRef;
+    Blazorise.ValidationSummary ValidationSummary = new Blazorise.ValidationSummary();
+
+    private List<PlaceDataModel> APIPlaces = new List<PlaceDataModel>();
+    private List<PlanDataModel> APIPlans = new List<PlanDataModel>();
+    private List<EquipmentDataModel> APIEquipments = new List<EquipmentDataModel>();
+
+    List<EquipmentContainer> equipmentContainers = new List<EquipmentContainer>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            APIPlaces = await AiFitMentorService.GetPlaces();
+            APIPlans = await AiFitMentorService.GetPlans();
+            APIEquipments = await AiFitMentorService.GetEquipments();
+            foreach (EquipmentDataModel equipment in APIEquipments)
+            {
+                this.equipmentContainers.Add(new EquipmentContainer(){Equipment = equipment});
+            }
+            
+            AvailabilityDto.Place = APIPlaces.First();
+            AvailabilityDto.Plan = APIPlans.First(plan => plan.Name.Contains("Choose"));
+            AvailabilityDto.Plan.DaysPerWeek = "3";
+            AvailabilityDto.Plan.MinsPerSession = "55 mins";
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+
+
+        await base.OnInitializedAsync();
+    }
+    
+    async Task SubmitHorizontalForm()
+    {
+        submitButtonLoading = true;
+
+        ValidationSummary.Errors = new string[1];
+        try
+        {
+            if (AvailabilityDto.Equipments.Any())
+            {
+                if(await validationsHorizontalFormRef.ValidateAll())
+                {
+
+                    await AvailabilitySelectedEventCallback.InvokeAsync(this.AvailabilityDto);
+                }
+            }
+            else
+            {
+                ValidationSummary.Errors = new string[1] { "Select the available equipments so that we can generate a suitable plan for you" };
+
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            ValidationSummary.Errors = new string[1] { ex.Message };
+
+        }
+
+        if (await validationsHorizontalFormRef.ValidateAll())
+        {
+            await validationsHorizontalFormRef.ClearAll();
+
+        }
+
+        submitButtonLoading = false;
+
+    }
+    
+    
+    private async Task MuscleClicked(EquipmentContainer EquipmentContainer)
+    {
+
+        EquipmentContainer.Selected = !EquipmentContainer.Selected;
+
+        List<EquipmentDataModel> selectedMuscles = new List<EquipmentDataModel>();
+        
+        foreach(EquipmentContainer equipmentContainer in this.equipmentContainers.Where(equipmentContainer=> equipmentContainer.Selected == true))
+        {
+            selectedMuscles.Add(equipmentContainer.Equipment);
+        }
+
+        this.AvailabilityDto.Equipments = selectedMuscles;
+        this.StateHasChanged();
+    }
+    
+    public class EquipmentContainer
+    {
+        public EquipmentDataModel Equipment { get; set; }
+        public bool Selected { get; set; } = false;
+    }
+    
+
+}

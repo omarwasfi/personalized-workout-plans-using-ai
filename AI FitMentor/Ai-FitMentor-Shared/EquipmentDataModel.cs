@@ -1,4 +1,4 @@
-namespace AI_FitMentor_Lib.DataModels;
+namespace Ai_FitMentor_Shared;
 
 /// <summary>
 /// workout tags

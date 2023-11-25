@@ -1,5 +1,5 @@
 using System.Text.Json;
-using AI_FitMentor_Lib.DataModels;
+using Ai_FitMentor_Shared;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
@@ -88,13 +88,13 @@ public class AIFitMentorDB
     private async Task loadTypse()
     {
         Typse = new List<WorkoutTypeDataModel>();
-        using FileStream stream = File.OpenRead(_hostingEnvironment.WebRootPath + _configuration.GetValue<string>("TypsePath"));
+        using FileStream stream = File.OpenRead(_hostingEnvironment.WebRootPath + _configuration.GetValue<string>("TypesPath"));
         
         List<string> TypseJSON = await JsonSerializer.DeserializeAsync<List<string>>(stream);
 
         foreach (string type in TypseJSON)
         {
-            this.Plans.Add(new PlanDataModel(){Name = type});
+            this.Typse.Add(new WorkoutTypeDataModel(){Name = type});
         }
     }
     

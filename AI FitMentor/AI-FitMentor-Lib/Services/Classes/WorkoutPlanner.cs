@@ -1,4 +1,4 @@
-using AI_FitMentor_Lib.DataModels;
+using Ai_FitMentor_Shared;
 using AI_FitMentor_Lib.Services.Interfaces;
 using Azure;
 using Azure.AI.OpenAI;
@@ -38,11 +38,11 @@ public class WorkoutPlanner : IWorkoutPlanner
         
         completionOptions.Messages.Add(new ChatMessage(ChatRole.System, _configuration.GetValue<string>("OpenAiSettings:ChatRole")));
         
-        completionOptions.Messages.Add(new ChatMessage(ChatRole.User, "Hi, my sex is: " + person.Sex + ", my weight is: " + person.Weight + ", My height is: " + person.Height +"and My goals is " + person.MyGoals));
+        completionOptions.Messages.Add(new ChatMessage(ChatRole.User, "Hi, my gender is: " + person.Gender + ", my weight is: " + person.Weight + ", My height is: " + person.Height +"and My goals is " + person.MyGoals));
         completionOptions.Messages.Add(new ChatMessage(ChatRole.User, "I'll be able to use only the following Equipments " + person.GetEquipments()));
         completionOptions.Messages.Add(new ChatMessage(ChatRole.User, "I want to target only the following muscles " + person.GetMuscles()));
         completionOptions.Messages.Add(new ChatMessage(ChatRole.User, "I will train in or at the " + person.Place.Name));
-        completionOptions.Messages.Add(new ChatMessage(ChatRole.User, "I want my training plan to be  " + person.Plan.Name + "I want to train " + person.Plan.DaysPerWeek + " times per week and I want the session duration to be around " + person.Plan.MinsPerSession + " minuets per session"));
+        completionOptions.Messages.Add(new ChatMessage(ChatRole.User, "I want my training plan to be  " + person.Plan.Name + "I want to train " + person.Plan.DaysPerWeek + " times per week and I want the session duration to be around " + person.Plan.MinsPerSession + " per session"));
         completionOptions.Messages.Add(new ChatMessage(ChatRole.User, "I want my workout type to be " + person.WorkoutType.Name));
         
         var response = await _openAiClient.GetChatCompletionsAsync(completionOptions);

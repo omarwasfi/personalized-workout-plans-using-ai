@@ -20,8 +20,8 @@ public class AIFitMentorController : ControllerBase
     }
 
     [HttpPost]
-    [Route("GetPlan")]
-    public async Task<ActionResult<string>> GetPlan(PersonDataModel person)
+    [Route("GeneratePlan")]
+    public async Task<ActionResult<string>> GeneratePlan(PersonDataModel person)
     {
         try
         {

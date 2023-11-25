@@ -1,5 +1,7 @@
 using System.Reflection;
 using AI_FitMentor_Lib.DbContext;
+using AI_FitMentor_Lib.Services.Classes;
+using AI_FitMentor_Lib.Services.Interfaces;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
@@ -43,6 +45,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddSingleton<AIFitMentorDB>();
+builder.Services.AddSingleton<IWorkoutPlanner,WorkoutPlanner>();
+
 
 var app = builder.Build();
 

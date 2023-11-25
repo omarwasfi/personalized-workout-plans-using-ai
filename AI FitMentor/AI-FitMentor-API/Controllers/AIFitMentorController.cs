@@ -1,6 +1,9 @@
 using AI_FitMentor_Lib.DataModels;
 using Microsoft.AspNetCore.Mvc;
 using AI_FitMentor_Lib.DbContext;
+using AI_FitMentor_Lib.Services.Classes;
+using AI_FitMentor_Lib.Services.Interfaces;
+
 namespace AI_FitMentor_API.Controllers;
 
 [ApiController]
@@ -8,10 +11,29 @@ namespace AI_FitMentor_API.Controllers;
 public class AIFitMentorController : ControllerBase
 {
     public AIFitMentorDB _AiFitMentorDb { get; set; }
-    public AIFitMentorController(AIFitMentorDB aiFitMentor)
+    public IWorkoutPlanner _WorkoutPlanner { get; set; }
+
+    public AIFitMentorController(AIFitMentorDB aiFitMentor,IWorkoutPlanner workoutPlanner)
     {
         this._AiFitMentorDb = aiFitMentor;
+        this._WorkoutPlanner = workoutPlanner;
     }
+
+    [HttpPost]
+    [Route("GetPlan")]
+    public async Task<ActionResult<string>> GetPlan(PersonDataModel person)
+    {
+        try
+        {
+            return await this._WorkoutPlanner.Generate(person);
+        }
+        catch
+        {
+            return BadRequest("Unrecognized error");
+
+        }
+    }
+
     
     [HttpGet]
     [Route("GetEquipments")]
@@ -76,7 +98,7 @@ public class AIFitMentorController : ControllerBase
     
     [HttpGet]
     [Route("GetTypes")]
-    public async Task<ActionResult<List<TypeDataModel>>> GetTypes()
+    public async Task<ActionResult<List<WorkoutTypeDataModel>>> GetTypes()
     {
         try
         {

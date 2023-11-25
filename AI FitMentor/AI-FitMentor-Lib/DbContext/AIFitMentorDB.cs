@@ -30,7 +30,7 @@ public class AIFitMentorDB
     public List<MusclesDataModel> Muscles { get; set; }
     public List<PlaceDataModel> Places { get; set; }
     public List<PlanDataModel> Plans { get; set; }
-    public List<TypeDataModel> Typse { get; set; }
+    public List<WorkoutTypeDataModel> Typse { get; set; }
 
 
     private async Task loadEquipments()
@@ -87,7 +87,7 @@ public class AIFitMentorDB
     
     private async Task loadTypse()
     {
-        Typse = new List<TypeDataModel>();
+        Typse = new List<WorkoutTypeDataModel>();
         using FileStream stream = File.OpenRead(_hostingEnvironment.WebRootPath + _configuration.GetValue<string>("TypsePath"));
         
         List<string> TypseJSON = await JsonSerializer.DeserializeAsync<List<string>>(stream);

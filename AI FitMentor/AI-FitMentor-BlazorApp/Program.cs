@@ -26,6 +26,8 @@ builder.Services
     .AddFontAwesomeIcons();
 
 var app = builder.Build();
+app.Urls.Add( builder.Configuration.GetValue<string>("httpUrl"));
+app.Urls.Add(builder.Configuration.GetValue<string>("httpsUrl"));
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
